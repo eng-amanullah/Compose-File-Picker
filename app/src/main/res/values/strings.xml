@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">File Picker</string>
+    <string name="choose_from">Choose From</string>
+    <string name="skip">Skip</string>
+    <string name="photo_gallery">Photo Gallery</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="upload_image">Upload Image</string>
+</resources>
