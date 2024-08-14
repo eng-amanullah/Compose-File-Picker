@@ -6,4 +6,6 @@
     <string name="file">File</string>
     <string name="open_camera">Open Camera</string>
     <string name="upload_image">Upload Image</string>
+    <string name="upload_single_image">Upload Single Image</string>
+    <string name="upload_multiple_image">Upload Multiple Image</string>
 </resources>
