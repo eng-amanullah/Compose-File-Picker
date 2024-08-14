@@ -1,5 +1,6 @@
 package com.amanullah.filepicker
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -210,6 +211,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @SuppressLint("MutableCollectionMutableState")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun InitViewWithBottomSheet(
