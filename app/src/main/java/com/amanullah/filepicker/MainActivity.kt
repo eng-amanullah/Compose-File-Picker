@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                     showingType = Constants.DIALOG
                                 }
                                 .padding(16.dp),
-                            text = "Dialog",
+                            text = stringResource(R.string.dialog),
                             textAlign = TextAlign.Center
                         )
 
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                                     showingType = Constants.BOTTOM_SHEET
                                 }
                                 .padding(16.dp),
-                            text = "Bottom Sheet",
+                            text = stringResource(R.string.bottom_sheet),
                             textAlign = TextAlign.Center
                         )
                     }

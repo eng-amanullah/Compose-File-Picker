@@ -8,4 +8,6 @@
     <string name="upload_image">Upload Image</string>
     <string name="upload_single_image">Upload Single Image</string>
     <string name="upload_multiple_image">Upload Multiple Image</string>
+    <string name="dialog">Dialog</string>
+    <string name="bottom_sheet">Bottom Sheet</string>
 </resources>
