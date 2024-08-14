@@ -1,10 +1,10 @@
 package com.amanullah.filepicker.customview
 
-import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.Keep
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,35 +31,57 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import com.amanullah.filepicker.R
+import com.amanullah.filepicker.utils.Constants
+import com.amanullah.filepicker.utils.createImageUri
+import com.amanullah.filepicker.utils.uriToFile
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Preview
 @Composable
 fun ChooseFromGalleryAndCamera(
     modifier: Modifier = Modifier,
-    galleryButtonCallBack: (File) -> Unit = {},
-    cameraButtonCallBack: (File) -> Unit = {},
+    buttonCallBack: (File) -> Unit = {},
     skipButtonCallBak: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    // Photo picker launcher
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let {
+            val file = it.uriToFile(context = context)
+            file?.let { file ->
+                buttonCallBack(file)
+            }
+        }
+    }
+
+    // File picker launcher
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val file = it.uriToFile(context = context)
+            file?.let { file ->
+                buttonCallBack(file)
+            }
+        }
+    }
 
     // Camera Uri state
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
@@ -70,22 +92,10 @@ fun ChooseFromGalleryAndCamera(
     ) { success ->
         if (success) {
             cameraUri?.let {
-                val file = uriToFile(context, it)
+                val file = it.uriToFile(context = context)
                 file?.let { file ->
-                    galleryButtonCallBack(file)
+                    buttonCallBack(file)
                 }
-            }
-        }
-    }
-
-    // File picker launcher
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val file = uriToFile(context, it)
-            file?.let { file ->
-                cameraButtonCallBack(file)
             }
         }
     }
@@ -94,7 +104,7 @@ fun ChooseFromGalleryAndCamera(
         modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(size = 16.dp),
-        border = BorderStroke(width = 1.dp, color = Color(0xFFE8E8E8))
+        border = BorderStroke(width = 1.dp, color = Color(color = 0xFFE8E8E8))
     ) {
         Column(
             modifier = Modifier
@@ -124,7 +134,7 @@ fun ChooseFromGalleryAndCamera(
                 ) {
                     Text(
                         text = stringResource(R.string.skip),
-                        color = Color(0xFF4E4E4E),
+                        color = Color(color = 0xFF4E4E4E),
                         style = TextStyle(
                             fontSize = 14.sp,
                             textDecoration = TextDecoration.Underline,
@@ -134,148 +144,131 @@ fun ChooseFromGalleryAndCamera(
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                // Photo Gallery
-                Card(
+            val dataList = mutableListOf(
+                ItemModel(
                     modifier = Modifier
                         .weight(weight = 1f, fill = true)
                         .padding(end = 8.dp),
-                    shape = RoundedCornerShape(size = 16.dp),
-                    border = BorderStroke(width = (0.5).dp, color = Color(0xFFD5ECE2)),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F9F5))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                scope.launch {
-                                    filePickerLauncher.launch("*/*")
-                                }
-                            }
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(color = Color.White),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                modifier = Modifier
-                                    .padding(16.dp),
-                                painter = painterResource(id = R.drawable.ic_select_from_gallery_icon),
-                                contentDescription = null
+                    icon = painterResource(id = R.drawable.ic_select_from_gallery_icon),
+                    title = stringResource(R.string.photo_gallery),
+                    type = Constants.GALLERY,
+                    onClickCallBack = {
+                        scope.launch {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
                             )
                         }
-
-                        Text(
-                            modifier = Modifier
-                                .padding(top = 8.dp),
-                            text = stringResource(R.string.photo_gallery),
-                            color = Color.Black,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
                     }
-                }
-
-                // Open Camera
-                Card(
+                ),
+                ItemModel(
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = true)
+                        .padding(horizontal = 8.dp),
+                    icon = painterResource(id = R.drawable.ic_select_from_gallery_icon),
+                    title = stringResource(R.string.file),
+                    type = Constants.FILE,
+                    onClickCallBack = {
+                        scope.launch {
+                            filePickerLauncher.launch("*/*")
+                        }
+                    }
+                ),
+                ItemModel(
                     modifier = Modifier
                         .weight(weight = 1f, fill = true)
                         .padding(start = 8.dp),
-                    shape = RoundedCornerShape(size = 16.dp),
-                    border = BorderStroke(width = (0.5).dp, color = Color(0xFFD5ECE2)),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F9F5))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                scope.launch {
-                                    val uri = createImageUri(context)
-                                    cameraUri = uri
-                                    cameraLauncher.launch(uri)
-                                }
-                            }
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(color = Color.White),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                modifier = Modifier
-                                    .padding(16.dp),
-                                painter = painterResource(id = R.drawable.ic_select_from_camera_icon),
-                                contentDescription = null
-                            )
+                    icon = painterResource(id = R.drawable.ic_select_from_camera_icon),
+                    title = stringResource(R.string.open_camera),
+                    type = Constants.CAMERA,
+                    onClickCallBack = {
+                        scope.launch {
+                            val uri = createImageUri(context)
+                            cameraUri = uri
+                            cameraLauncher.launch(uri)
                         }
-
-                        Text(
-                            modifier = Modifier
-                                .padding(top = 8.dp),
-                            text = stringResource(R.string.open_camera),
-                            color = Color.Black,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
                     }
+                ),
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(dataList.size) { index ->
+                    Item(data = dataList[index])
                 }
             }
         }
     }
 }
 
-// Helper function to create a Uri for the camera image
-private fun createImageUri(context: Context): Uri {
-    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-    val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    val file = File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
+@Keep
+data class ItemModel(
+    val modifier: Modifier,
+    val icon: Painter,
+    val title: String,
+    val type: Int,
+    val onClickCallBack: (Int) -> Unit
+)
 
-    return FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.fileProvider",
-        file
+@Preview
+@Composable
+private fun Item(
+    data: ItemModel = ItemModel(
+        modifier = Modifier,
+        icon = painterResource(id = R.drawable.ic_select_from_gallery_icon),
+        title = stringResource(R.string.photo_gallery),
+        type = Constants.FILE,
+        onClickCallBack = {}
     )
-}
+) {
+    Card(
+        modifier = data.modifier,
+        shape = RoundedCornerShape(size = 16.dp),
+        border = BorderStroke(width = (0.5).dp, color = Color(color = 0xFFD5ECE2)),
+        colors = CardDefaults.cardColors(containerColor = Color(color = 0xFFF0F9F5))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    data.onClickCallBack(data.type)
+                }
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(color = Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    painter = data.icon,
+                    contentDescription = null
+                )
+            }
 
-private fun uriToFile(context: Context, uri: Uri): File? {
-    val contentResolver = context.contentResolver
-    val inputStream: InputStream? = contentResolver.openInputStream(uri)
-    val file = File(context.cacheDir, getFileName(context, uri))
-
-    return try {
-        val outputStream = FileOutputStream(file)
-        inputStream?.copyTo(outputStream)
-        inputStream?.close()
-        outputStream.close()
-        file
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                textAlign = TextAlign.Center,
+                minLines = 2,
+                maxLines = 2,
+                text = data.title,
+                color = Color.Black,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
     }
-}
-
-private fun getFileName(context: Context, uri: Uri): String {
-    val cursor = context.contentResolver.query(uri, null, null, null, null)
-    val name = cursor?.getColumnIndex("_display_name")?.let { columnIndex ->
-        cursor.moveToFirst()
-        cursor.getString(columnIndex)
-    }
-    cursor?.close()
-    return name ?: "unknown_file"
 }
