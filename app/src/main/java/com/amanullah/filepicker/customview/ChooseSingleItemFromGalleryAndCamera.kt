@@ -51,10 +51,10 @@ import java.io.File
 
 @Preview
 @Composable
-fun ChooseFromGalleryAndCamera(
+fun ChooseSingleItemFromGalleryAndCamera(
     modifier: Modifier = Modifier,
-    buttonCallBack: (File) -> Unit = {},
-    skipButtonCallBak: () -> Unit = {}
+    onFileSelected: (File) -> Unit = {},
+    onSkip: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -66,7 +66,7 @@ fun ChooseFromGalleryAndCamera(
         uri?.let {
             val file = it.uriToFile(context = context)
             file?.let { file ->
-                buttonCallBack(file)
+                onFileSelected(file)
             }
         }
     }
@@ -78,7 +78,7 @@ fun ChooseFromGalleryAndCamera(
         uri?.let {
             val file = it.uriToFile(context = context)
             file?.let { file ->
-                buttonCallBack(file)
+                onFileSelected(file)
             }
         }
     }
@@ -94,7 +94,7 @@ fun ChooseFromGalleryAndCamera(
             cameraUri?.let {
                 val file = it.uriToFile(context = context)
                 file?.let { file ->
-                    buttonCallBack(file)
+                    onFileSelected(file)
                 }
             }
         }
@@ -129,7 +129,7 @@ fun ChooseFromGalleryAndCamera(
 
                 TextButton(
                     onClick = {
-                        skipButtonCallBak()
+                        onSkip()
                     }
                 ) {
                     Text(
