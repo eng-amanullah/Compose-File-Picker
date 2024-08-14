@@ -57,3 +57,11 @@ fun createImageUri(context: Context): Uri {
         file
     )
 }
+
+val imageExtensions = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp")
+
+fun filterImageFiles(files: List<File>?): List<File> {
+    return files?.filter { file ->
+        imageExtensions.contains(file.extension.lowercase())
+    } ?: emptyList()
+}
