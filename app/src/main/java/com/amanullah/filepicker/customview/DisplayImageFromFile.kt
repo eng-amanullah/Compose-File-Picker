@@ -31,7 +31,7 @@ fun DisplayImageFromFile(
                 .fillMaxSize(),
             painter = rememberAsyncImagePainter(file),
             contentDescription = null,
-            contentScale = ContentScale.Fit, // Adjust this to your needs (e.g., Fit, FillBounds)
+            contentScale = ContentScale.FillBounds, // Adjust this to your needs (e.g., Fit, FillBounds)
         )
     }
 }
