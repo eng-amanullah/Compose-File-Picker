@@ -110,7 +110,7 @@ fun ChooseSingleItemFromGalleryAndCamera(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = Color.White)
-                .padding(start = 16.dp, end = 16.dp, bottom = 32.dp, top = 16.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = 32.dp, top = 8.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -147,8 +147,7 @@ fun ChooseSingleItemFromGalleryAndCamera(
             val dataList = mutableListOf(
                 ItemModel(
                     modifier = Modifier
-                        .weight(weight = 1f, fill = true)
-                        .padding(end = 8.dp),
+                        .weight(weight = 1f, fill = true),
                     icon = painterResource(id = R.drawable.ic_select_from_gallery_icon),
                     title = stringResource(R.string.photo_gallery),
                     type = Constants.GALLERY,
@@ -164,21 +163,19 @@ fun ChooseSingleItemFromGalleryAndCamera(
                 ),
                 ItemModel(
                     modifier = Modifier
-                        .weight(weight = 1f, fill = true)
-                        .padding(horizontal = 8.dp),
-                    icon = painterResource(id = R.drawable.ic_select_from_gallery_icon),
+                        .weight(weight = 1f, fill = true),
+                    icon = painterResource(id = R.drawable.ic_select_file_icon),
                     title = stringResource(R.string.file),
                     type = Constants.FILE,
                     onClickCallBack = {
                         scope.launch {
-                            filePickerLauncher.launch("*/*")
+                            filePickerLauncher.launch("application/pdf")
                         }
                     }
                 ),
                 ItemModel(
                     modifier = Modifier
-                        .weight(weight = 1f, fill = true)
-                        .padding(start = 8.dp),
+                        .weight(weight = 1f, fill = true),
                     icon = painterResource(id = R.drawable.ic_select_from_camera_icon),
                     title = stringResource(R.string.open_camera),
                     type = Constants.CAMERA,
@@ -195,7 +192,8 @@ fun ChooseSingleItemFromGalleryAndCamera(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(space = 16.dp)
             ) {
                 repeat(dataList.size) { index ->
                     Item(data = dataList[index])
