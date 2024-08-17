@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.amanullah.filepicker.customview.ChooseMultipleItemFromGalleryAndCamera
 import com.amanullah.filepicker.customview.ChooseSingleItemFromGalleryAndCamera
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             FilePickerTheme {
 
-                var showingType by remember { mutableStateOf(Constants.DIALOG) }
+                var showingType by remember { mutableStateOf(Constants.BOTTOM_SHEET) }
 
                 Scaffold(
                     modifier = Modifier
@@ -274,7 +275,9 @@ class MainActivity : ComponentActivity() {
                         scope.launch {
                             sheetState.hide()
                         }
-                    }
+                    },
+                    containerColor = Color.White,
+                    dragHandle = null
                 ) {
                     when (chooseItem) {
                         Constants.SINGLE_ITEM -> {
