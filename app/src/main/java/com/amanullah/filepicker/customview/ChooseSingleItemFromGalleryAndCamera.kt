@@ -110,7 +110,7 @@ fun ChooseSingleItemFromGalleryAndCamera(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = Color.White)
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = 32.dp, top = 16.dp)
         ) {
             Row(
                 modifier = Modifier
